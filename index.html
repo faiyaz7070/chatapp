@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket App</title>
+    <style>
+        body{
+            background-image:linear-gradient(rgb(193, 223, 92),rgb(128, 0, 43));
+        }
+        .container{
+            max-width: 955px;
+       border: 2px solid black;
+            margin: auto;
+            padding: 33px;
+            height: 60vh;
+            overflow-y:auto ;
+            margin-bottom: 23px;
+        }.massage{
+            background-color: black;
+            width: 24%;
+            padding: 10px;
+            margin: 17px 2px;
+            border: 2px solid black;
+            border-radius: 5px;
+            color: white;
+ }
+        .left{
+            float: left;
+            clear: both;
+
+        }
+        .right{
+            float:right;
+            clear: both;
+
+
+        }
+        #send_container{
+            display: block;
+            margin: auto;
+            text-align: center;
+            max-width: 985px;
+            width: 100%;
+        }#massageinp{
+            width: 91%;
+            border: 2px solid black;
+            border-radius: 10px;
+            height: 34px;
+        }
+        .btn{
+            cursor: pointer;
+            border: 2px solid black;
+            border-radius: 6px;
+            height: 34px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Faiyaz(Dulraz) Chat Room</h1>
+    <div class="container">
+        <!-- <div class="massage left"></div>
+        <div class="massage right"></div> -->
+
+
+    </div>
+    <div class="send">
+        <form action="#" id="send_container">
+            <input type="text" name="massageinp" id="massageinp">
+            <button class="btn" type="submit">Send</button>
+        </form>
+
+    </div>
+    <!-- <input type="text" placeholder="send something" id="input">
+    <input type="text" placeholder="25" id="ageinput">
+    
+    <button onclick="done()">SEnd</button> -->
+    <script  src="https://cdn.socket.io/4.6.0/socket.io.min.js" 
+    integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous">
+</script>
+<script>
+    
+    const socket=io("http://localhost:7600/",{transports:["websocket"]}) 
+
+    const form=document.getElementById("send_container")
+    const massageinput=document.getElementById("massageinp")
+    const massagecontainer=document.querySelector(".container")
+    var audio=new Audio("Tring Sms.mp3")
+    const appent=(message,position)=>{
+        const massageelement=document.createElement("div")
+        massageelement.innerText=message
+        massageelement.classList.add("massage")
+        massageelement.classList.add(position)
+        massagecontainer.append(massageelement)
+        if(position=="left"){
+
+            audio.play();
+        }
+
+
+    }
+    form.addEventListener("submit",(e)=>{
+        e.preventDefault()
+        const message=massageinput.value;
+        appent(`you:${message}`,'right')
+        socket.emit('send',message)
+        massageinput.value="";
+
+
+    })
+    const name=prompt("Enter name to join")
+    socket.emit("new-user-joined",name)
+
+
+
+    socket.on("usr-joint",(data)=>{
+        appent(`${data} joined the chat`,'right')
+    })
+    socket.on("received",(data)=>{
+        appent(`${data.name}:${data.massage}`,'left')
+    })
+    socket.on("left",(name)=>{
+        appent(`${name} left the chat`,'left')
+    })
+ 
+
+</script>
+</body>
+</html>
